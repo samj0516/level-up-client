@@ -1,9 +1,11 @@
 import React from "react"
 import { Route } from "react-router-dom"
 import { GameList } from "./game/GameList.js"
+import { GameForm } from './game/GameForm.js'
 import { GameProvider } from "./game/GameProvider.js"
 import { EventProvider } from './game/EventProvider.js'
 import { EventList } from './game/EventList.js'
+
 export const ApplicationViews = () => {
     return <>
         <main style={{
@@ -13,6 +15,9 @@ export const ApplicationViews = () => {
             <GameProvider>
                 <Route exact path="/">
                     <GameList />
+                </Route>
+                <Route exact path="/games/new">
+                    <GameForm />
                 </Route>
             </GameProvider>
             <EventProvider>
