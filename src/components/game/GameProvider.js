@@ -25,6 +25,9 @@ export const GameProvider = (props) => {
         })
             .then(getGames)
     }
+    const getGameById = (game_id) =>{
+        return fetch(`http://localhost:8000/games/${game_id}`)
+    }
     
     const getGameTypes = () => {
         return fetch("http://localhost:8000/gametypes", { 
