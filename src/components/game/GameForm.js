@@ -1,11 +1,12 @@
 import React, { useContext, useState, useEffect } from "react"
 import { GameContext } from "./GameProvider.js"
-import { useHistory } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 
 
 export const GameForm = () => {
     const history = useHistory()
-    const { createGame, getGameTypes, gameTypes } = useContext(GameContext)
+    const { createGame, getGameTypes, gameTypes, getGameById, updateGame } = useContext(GameContext)
+    const {game_id} = useParams()
 
     /*
         Since the input fields are bound to the values of
@@ -28,7 +29,11 @@ export const GameForm = () => {
         element presents game type choices to the user.
     */
     useEffect(() => {
-        getGameTypes()
+        getGameTypes().then(()=>{
+            if(game_id){
+                getGameById(game_id).then(setCurrentGame)
+            }
+        })
     }, [])
 
     /*
@@ -47,36 +52,7 @@ export const GameForm = () => {
        setCurrentGame(newGameState)
         
    }
-    // const changeGameTitleState = (event) => {
-    //     const newGameState = { ...currentGame }
-    //     newGameState.title = event.target.value
-    //     setCurrentGame(newGameState)
-    // }
-
-    // const changeGameMakerState = (event) => {
-    //     const newGameState = { ...currentGame }
-    //     newGameState.maker = event.target.value
-    //     setCurrentGame(newGameState)
-    // }
-
-    // const changeGamePlayersState = (event) => {
-    //     const newGameState = { ...currentGame }
-    //     newGameState.numberOfPlayers = event.target.value
-    //     setCurrentGame(newGameState)
-    // }
-
-    // const changeGameSkillLevelState = (event) => {
-    //     const newGameState = { ...currentGame }
-    //     newGameState.skillLevel = event.target.value
-    //     setCurrentGame(newGameState)
-    // }
-
-    // const changeGameTypeState = (event) => {
-    //     const newGameState = { ...currentGame }
-    //     newGameState.gameTypeId = event.target.value
-    //     setCurrentGame(newGameState)
-    // }
-    /* REFACTOR CHALLENGE END */
+   
 
     return (
         <form className="gameForm">
@@ -123,7 +99,7 @@ export const GameForm = () => {
                     <select name="type" className="form-control"
                         value={currentGame.type}
                         onChange={handleChange}>
-                        <option value="0">Select a Game Type</option>
+                        <option value={currentGame.type}>Select a Game Type</option>
                         {gameTypes.map(gameType => (
                             <option key={gameType.id} value={gameType.id}>
                                 {gameType.type}
@@ -140,20 +116,32 @@ export const GameForm = () => {
                     // Prevent form from being submitted
                     evt.preventDefault()
 
-                    const game = {
-                        name: currentGame.name,
-                        maker: currentGame.maker,
-                        max_players: parseInt(currentGame.max_players),
-                        min_players: parseInt(currentGame.min_players),
-                        difficulty_level: parseInt(currentGame.difficulty_level),
-                        type: parseInt(currentGame.type)
+                    
+                    if(game_id){
+                        const game = {
+                            id: currentGame.id,
+                            name: currentGame.name,
+                            maker: currentGame.maker,
+                            max_players: parseInt(currentGame.max_players),
+                            min_players: parseInt(currentGame.min_players),
+                            difficulty_level: parseInt(currentGame.difficulty_level),
+                            type: parseInt(currentGame.type)
+                        }
+                        updateGame(game).then(()=> history.push("/"))
+                    }else{
+                        const game = {
+                            name: currentGame.name,
+                            maker: currentGame.maker,
+                            max_players: parseInt(currentGame.max_players),
+                            min_players: parseInt(currentGame.min_players),
+                            difficulty_level: parseInt(currentGame.difficulty_level),
+                            type: parseInt(currentGame.type)
+                        }
+                        createGame(game).then(()=> history.push("/"))
                     }
 
-                    // Send POST request to your API
-                    createGame(game)
-                        .then(() => history.push("/"))
                 }}
-                className="btn btn-primary">Create</button>
+                className="btn btn-primary">{game_id ? "Edit" : "Create"}</button>
         </form>
     )
 }
